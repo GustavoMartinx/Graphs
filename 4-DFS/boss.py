@@ -3,6 +3,7 @@ def ask(graph, start):
     color = {}
     queue = []
     minor_age = 101
+    flag = False
 
     # initialization
     for vertex in graph:
@@ -26,7 +27,7 @@ def ask(graph, start):
         
         # traverse the list of adjacent vertices of the dequeued vertex
         for v in graph[u]:
-            print(graph[u])
+            #print(graph[u])
             
             if color[v] == 'W':
                 color[v] = 'G'
@@ -49,13 +50,50 @@ def ask(graph, start):
 
 
 
-def change(graph, start, objective):
+def change(graph, X, Y):
+    '''
+    O objetivo desta função é trocar os vértices X e Y de posição entre si em um grafo direcionado.
+    Para tal, busca-se alterar tanto os vértices diretamente predecessores de X e Y quanto seus vértices diretamente adjacentes/subsequentes
+    '''
     
-    predecessor = {}
-    distance = {}
-    color = {}
-    queue = []
+    # Encontrando (onde? no grafo original) os predecessores do vértice X/Y no grafo invertido
+    # por meio da lista de adj do vértice X/Y no grafo original
+    pred_X = graph.graph[X]         # graph.graph[X] é a lista de adj (um dict) do vértice X no grafo original
+    adj_X = graph.graph_inverted[X] # graph_inverted[X] é a lista de adj do vértice X no grafo invertido
+    
+    pred_Y = graph.graph[Y]         # graph.graph[Y] é a lista de adj (um dict) do vértice Y no grafo original
+    adj_Y = graph.graph_inverted[Y] # graph_inverted[Y] é a lista de adj do vértice Y no grafo invertido
 
+    # testando se estou obtendo o dict esperado
+    # print("pred_X: ", pred_X)
+    # print("pred_Y: ", pred_Y)
+    
+    # print("adj_X: ", adj_X)
+    # print("adj_Y: ", adj_Y)
+
+    
+    # Troca X <---> Y no grafo Invertido
+
+    for v in pred_X:
+        del graph.graph_inverted[v][X]
+
+    for v in pred_Y:
+        del graph.graph_inverted[v][Y]
+
+    for v in pred_X:
+        graph.addEdgeInverted(v, Y)
+
+    for v in pred_Y:
+        graph.addEdgeInverted(v, X)
+
+    
+    
+
+
+    # Troca X <---> Y no grafo Original
+
+
+'''
     # initialization
     for vertex in graph:
         color[vertex] = 'W'         # W = white | B = black | G = gray
@@ -80,8 +118,7 @@ def change(graph, start, objective):
                 color[v] = 'G'
                 distance[v] = distance[u] + 1
 
-                if v == objective:     # objective = "saida" or "*"
-                    return distance[v] # distance between objective and start
+                
 
                 predecessor[v] = u
                 queue.append(v)
@@ -89,7 +126,7 @@ def change(graph, start, objective):
         color[u] = 'B'
 
     return predecessor
-
+'''
 
 
 class Graph:
@@ -141,11 +178,22 @@ while True:
         # instantiate graph
         graph = Graph()
 
-        # criando dicionário com chaves de 1 a N e valores recebidos por meio de uma lista dado pelo usuário
+        # criando dicionário auxiliar com chaves de 1 a N e valores recebidos por
+        # meio de uma lista dada pelo usuário
         entry_age = input().split()
         for i in range(vertex_employees):
+
+            # atribuindo cada idade a seu funcionario em um dict auxiliar
             graph.age[str(i+1)] = int(entry_age[i])
 
+            # criando grafo/lista de adjacência
+            graph.graph[str(i+1)] = {}
+
+            # criando grafo/lista de adjacência invertido
+            graph.graph_inverted[str(i+1)] = {}
+
+        print("graph pre: ", graph.graph)
+        print("graph_inverted pre: ", graph.graph_inverted)
 
         # creating graph and adjacency list
         while edges_management != 0:
@@ -161,9 +209,8 @@ while True:
         
         
         # inverting the directions of the edges
-        for u in graph.graph:
-            graph.graph_inverted[u] = {}
-        print("graph_inverted pre: ", graph.graph_inverted)
+        # for u in graph.graph:
+        #     graph.graph_inverted[u] = {}
         
         for u in graph.graph:
             for v in graph.graph[u]:
@@ -180,9 +227,9 @@ while True:
             if instruction[0] == "P":
                 # pergunta
                 ask(graph.graph_inverted, instruction[1])
-            #else:
+            else:
                 # Troca
-                # change(graph.graph, instruction[1], instruction[2])
+                change(graph, instruction[1], instruction[2])
 
             instructions -= 1
         
