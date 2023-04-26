@@ -58,75 +58,91 @@ def change(graph, X, Y):
     
     # Encontrando (onde? no grafo original) os predecessores do vértice X/Y no grafo invertido
     # por meio da lista de adj do vértice X/Y no grafo original
-    pred_X = graph.graph[X]         # graph.graph[X] é a lista de adj (um dict) do vértice X no grafo original
-    adj_X = graph.graph_inverted[X] # graph_inverted[X] é a lista de adj do vértice X no grafo invertido
+    pred_X = graph.graph[X].copy()         # graph.graph[X] é a lista de adj (um dict) do vértice X no grafo original
+    adj_X = graph.graph_inverted[X].copy() # graph_inverted[X] é a lista de adj do vértice X no grafo invertido
     
-    pred_Y = graph.graph[Y]         # graph.graph[Y] é a lista de adj (um dict) do vértice Y no grafo original
-    adj_Y = graph.graph_inverted[Y] # graph_inverted[Y] é a lista de adj do vértice Y no grafo invertido
+    pred_Y = graph.graph[Y].copy()         # graph.graph[Y] é a lista de adj (um dict) do vértice Y no grafo original
+    adj_Y = graph.graph_inverted[Y].copy() # graph_inverted[Y] é a lista de adj do vértice Y no grafo invertido
 
     # testando se estou obtendo o dict esperado
-    # print("pred_X: ", pred_X)
-    # print("pred_Y: ", pred_Y)
+    print("--- obtendo o dict esperado? ---")
+    print("pred_X: ", pred_X)
+    print("pred_Y: ", pred_Y)
     
-    # print("adj_X: ", adj_X)
-    # print("adj_Y: ", adj_Y)
+    print("adj_X: ", adj_X)
+    print("adj_Y: ", adj_Y)
 
     
     # Troca X <---> Y no grafo Invertido
-
+    print("--- troca no invertido pred ---")
     for v in pred_X:
-        del graph.graph_inverted[v][X]
+        if X in graph.graph_inverted[v]:
+            print("deletado: ", X, graph.graph_inverted[v][X])
+            del graph.graph_inverted[v][X]
+        print(f"L Adj de {v} sem X ({X}): ", graph.graph_inverted[v])
 
     for v in pred_Y:
-        del graph.graph_inverted[v][Y]
+        if Y in graph.graph_inverted[v]:
+            print("deletado: ", Y, graph.graph_inverted[v][Y])
+            del graph.graph_inverted[v][Y]
+        print(f"L Adj de {v} sem Y ({Y}): ", graph.graph_inverted[v])
 
     for v in pred_X:
+        print(f"adicionando {Y} na L Adj de {v}")
         graph.addEdgeInverted(v, Y)
+        print(f"nova aresta {Y} em {graph.graph_inverted[v]}")
 
     for v in pred_Y:
+        print(f"adicionando {X} na L Adj de {v}")
         graph.addEdgeInverted(v, X)
+        print(f"nova aresta {X} em {graph.graph_inverted[v]}")
 
     
+    print("--- adjs ---")
+
+    print("limpando ", graph.graph_inverted[X])
+    graph.graph_inverted[X].clear()
+    print("limpo: ", graph.graph_inverted[X])
     
+    print("limpando ", graph.graph_inverted[Y])
+    graph.graph_inverted[Y].clear()
+    print("limpo: ", graph.graph_inverted[Y])
+    
+    print(f"adicionando adj_Y ({adj_Y}) em X (antes): ", graph.graph_inverted[X])
+    graph.graph_inverted[X] = adj_Y
+    print("adicionando adj_Y em X (dps): ", graph.graph_inverted[X])
+
+    print(f"adicionando adj_X ({adj_X}) em Y (antes): ", graph.graph_inverted[Y])
+    graph.graph_inverted[Y] = adj_X
+    print("adicionando adj_X em Y (dps): ", graph.graph_inverted[Y])
+
 
 
     # Troca X <---> Y no grafo Original
 
+    for v in adj_X:
+        if X in graph.graph[v]:
+            del graph.graph[v][X]
 
-'''
-    # initialization
-    for vertex in graph:
-        color[vertex] = 'W'         # W = white | B = black | G = gray
-        distance[vertex] = -1       # -1 = undefined
-        predecessor[vertex] = None  # None = undefined
+    for v in adj_Y:
+        if Y in graph.graph[v]:
+            del graph.graph[v][Y]
 
-    color[start] = 'G'
-    distance[start] = 0
+    for v in adj_X:
+        graph.addEdge(v, Y)
+
+    for v in adj_Y:
+        graph.addEdge(v, X)
+
     
-    # enqueuing the start vertex
-    queue.append(start)
+    graph.graph[X].clear()
+    
+    graph.graph[Y].clear()
 
-    u = None
-    while queue:
-        
-        # dequeuing
-        u = queue.pop(0)
-        
-        # traverse the list of adjacent vertices of the dequeued vertex
-        for v in graph[u]:
-            if color[v] == 'W':
-                color[v] = 'G'
-                distance[v] = distance[u] + 1
+    graph.graph[X] = pred_Y
+    
+    graph.graph[Y] = pred_X
 
-                
-
-                predecessor[v] = u
-                queue.append(v)
-                
-        color[u] = 'B'
-
-    return predecessor
-'''
 
 
 class Graph:
@@ -192,8 +208,8 @@ while True:
             # criando grafo/lista de adjacência invertido
             graph.graph_inverted[str(i+1)] = {}
 
-        print("graph pre: ", graph.graph)
-        print("graph_inverted pre: ", graph.graph_inverted)
+        # print("graph pre: ", graph.graph)
+        # print("graph_inverted pre: ", graph.graph_inverted)
 
         # creating graph and adjacency list
         while edges_management != 0:
@@ -225,11 +241,14 @@ while True:
             instruction = input().split()
             
             if instruction[0] == "P":
-                # pergunta
+                # Pergunta
                 ask(graph.graph_inverted, instruction[1])
             else:
                 # Troca
                 change(graph, instruction[1], instruction[2])
+        
+            print("graph orig: ", graph.graph)
+            print("graph_inverted: ", graph.graph_inverted)
 
             instructions -= 1
         
