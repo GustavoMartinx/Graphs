@@ -43,6 +43,11 @@ def ask(graph, start):
 
 
 def change(graph, X, Y):
+    '''
+    O objetivo desta função é trocar os vértices X e Y de posição entre si em um grafo direcionado.
+    Para tal, busca-se alterar tanto os vértices diretamente predecessores de X e Y quanto seus vértices diretamente adjacentes/subsequentes
+    '''
+
     # Encontrando (onde? no grafo original) os predecessores do vértice X/Y no grafo invertido
     # por meio da lista de adj do vértice X/Y no grafo original
     pred_X = graph.graph[X].copy()         # graph.graph[X] é a lista de adj (um dict) do vértice X no grafo original
